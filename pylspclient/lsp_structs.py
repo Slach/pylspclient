@@ -49,7 +49,7 @@ class Location(object):
         self.uri = uri
         self.range = to_type(range, Range)
 
- 
+
 class Diagnostic(object):
      def __init__(self, range, severity, code, source, message, relatedInformation):
         """
@@ -61,7 +61,7 @@ class Diagnostic(object):
         :param str source: A human-readable string describing the source of this
                             diagnostic, e.g. 'typescript' or 'super lint'.
         :param str message: The diagnostic's message.
-        :param list relatedInformation: An array of related diagnostic information, e.g. when symbol-names within   
+        :param list relatedInformation: An array of related diagnostic information, e.g. when symbol-names within
                                         a scope collide all definitions can be marked via this property.
         """
         self.range = range
@@ -89,7 +89,7 @@ class DiagnosticRelatedInformation(object):
         self.location = location
         self.message = message
 
- 
+
 class Command(object):
      def __init__(self, title, command, arguments):
         """
@@ -110,7 +110,7 @@ class TextDocumentItem(object):
     def __init__(self, uri, languageId, version, text):
         """
         Constructs a new Diagnostic instance.
-        
+
         :param DocumentUri uri: Title of the command, like `save`.
         :param str languageId: The identifier of the actual command handler.
         :param int version: Arguments that the command handler should be invoked with.
@@ -124,15 +124,16 @@ class TextDocumentItem(object):
 
 class TextDocumentIdentifier(object):
     """
-    Text documents are identified using a URI. On the protocol level, URIs are passed as strings. 
+    Text documents are identified using a URI. On the protocol level, URIs are passed as strings.
     """
     def __init__(self, uri):
         """
         Constructs a new TextDocumentIdentifier instance.
 
-        :param DocumentUri uri: The text document's URI.       
+        :param DocumentUri uri: The text document's URI.
         """
         self.uri = uri
+
 
 class TextDocumentPositionParams(object):
     """
@@ -141,7 +142,7 @@ class TextDocumentPositionParams(object):
     def __init__(self, textDocument, position):
         """
         Constructs a new TextDocumentPositionParams instance.
-        
+
         :param TextDocumentIdentifier textDocument: The text document.
         :param Position position: The position inside the text document.
         """
@@ -272,7 +273,8 @@ class ParameterInformation(object):
         Constructs a new ParameterInformation instance.
 
         :param str label: The label of this parameter. Will be shown in the UI.
-        :param str documentation: The human-readable doc-comment of this parameter. Will be shown in the UI but can be omitted.
+        :param str documentation: The human-readable doc-comment of this parameter.
+            Will be shown in the UI but can be omitted.
         """
         self.label = label
         self.documentation = documentation
@@ -289,7 +291,8 @@ class SignatureInformation(object):
         Constructs a new SignatureInformation instance.
 
         :param str label: The label of this signature. Will be shown in the UI.
-        :param str documentation: The human-readable doc-comment of this signature. Will be shown in the UI but can be omitted.
+        :param str documentation: The human-readable doc-comment of this signature.
+            Will be shown in the UI but can be omitted.
         :param ParameterInformation[] parameters: The parameters of this signature.
         """
         self.label = label
@@ -332,11 +335,24 @@ class CompletionContext(object):
 
         :param CompletionTriggerKind triggerKind: How the completion was triggered.
         :param str triggerCharacter: The trigger character (a single character) that has trigger code complete.
-                                        Is undefined if `triggerKind !== CompletionTriggerKind.TriggerCharacter`
+            Is undefined if `triggerKind !== CompletionTriggerKind.TriggerCharacter`
         """
         self.triggerKind = triggerKind
         if triggerCharacter:
             self.triggerCharacter = triggerCharacter
+
+
+class ReferenceContext(object):
+    """
+    Contains additional information about the context which restrict search area of references
+    """
+
+    def __init__(self, includeDeclaration):
+        """
+        Constructs a new ReferenceContext instance
+        :param boolean includeDeclaration: Include the declaration of the current symbol.
+        """
+        self.includeDeclaration = includeDeclaration
 
 
 class TextEdit(object):
@@ -345,7 +361,7 @@ class TextEdit(object):
     """
     def __init__(self, range, newText):
         """
-        :param Range range: The range of the text document to be manipulated. To insert 
+        :param Range range: The range of the text document to be manipulated. To insert
                             text into a document create a range where start === end.
         :param str newText: The string to be inserted. For delete operations use an empty string.
         """
@@ -361,39 +377,53 @@ class InsertTextFormat(object):
 class CompletionItem(object):
     """
     """
-    def __init__(self, label, kind=None, detail=None, documentation=None, deprecated=None, presented=None, sortText=None, filterText=None, insertText=None, insertTextFormat=None, textEdit=None, additionalTextEdits=None, commitCharacters=None, command=None, data=None): 
-        """  
+
+    def __init__(self, label, kind=None, detail=None, documentation=None, deprecated=None, presented=None,
+                 sortText=None, filterText=None, insertText=None, insertTextFormat=None, textEdit=None,
+                 additionalTextEdits=None, commitCharacters=None, command=None, data=None):
+        """
         :param str label: The label of this completion item. By default also the text that is inserted when selecting
                         this completion.
         :param int kind: The kind of this completion item. Based of the kind an icon is chosen by the editor.
-        :param str detail:  A human-readable string with additional information about this item, like type or symbol information.
-        :param tr ocumentation: A human-readable string that represents a doc-comment.
+        :param str detail: A human-readable string with additional information about this item,
+            like type or symbol information.
+        :param tr documentation: A human-readable string that represents a doc-comment.
         :param bool deprecated: Indicates if this item is deprecated.
-        :param bool presented: Select this item when showing. Note: that only one completion item can be selected and that the
-                                tool / client decides which item that is. The rule is that the first item of those that match best is selected.
-        :param str sortText: A string that should be used when comparing this item with other items. When `falsy` the label is used.
-        :param str filterText: A string that should be used when filtering a set of completion items. When `falsy` the label is used.
-        :param str insertText: A string that should be inserted into a document when selecting this completion. When `falsy` the label is used.
-                                The `insertText` is subject to interpretation by the client side. Some tools might not take the string literally. For example
-                                VS Code when code complete is requested in this example `con<cursor position>` and a completion item with an `insertText` of `console` is provided it
-                                will only insert `sole`. Therefore it is recommended to use `textEdit` instead since it avoids additional client side interpretation.
-                                @deprecated Use textEdit instead.
-        :param InsertTextFormat isertTextFormat: The format of the insert text. The format applies to both the `insertText` property
-                                                    and the `newText` property of a provided `textEdit`.
-        :param TextEdit textEdit: An edit which is applied to a document when selecting this completion. When an edit is provided the value of `insertText` is ignored.
-                                    Note:* The range of the edit must be a single line range and it must contain the position at which completion
-                                    has been requested.
-        :param TextEdit additionalTextEdits: An optional array of additional text edits that are applied when selecting this completion. 
-                                                Edits must not overlap (including the same insert position) with the main edit nor with themselves.
-                                                Additional text edits should be used to change text unrelated to the current cursor position
-                                                (for example adding an import statement at the top of the file if the completion item will
-                                                insert an unqualified type).
-        :param str commitCharacters: An optional set of characters that when pressed while this completion is active will accept it first and
-                                        then type that character. *Note* that all commit characters should have `length=1` and that superfluous
-                                        characters will be ignored.
-        :param Command command: An optional command that is executed *after* inserting this completion. Note: that
-                                additional modifications to the current document should be described with the additionalTextEdits-property.
-        :param data: An data entry field that is preserved on a completion item between a completion and a completion resolve request.
+        :param bool presented: Select this item when showing.
+            Note: that only one completion item can be selected and that the tool / client decides which item that is.
+            The rule is that the first item of those that match best is selected.
+        :param str sortText: A string that should be used when comparing this item with other items.
+            When `falsy` the label is used.
+        :param str filterText: A string that should be used when filtering a set of completion items.
+            When `falsy` the label is used.
+        :param str insertText: A string that should be inserted into a document when selecting this completion.
+            When `falsy` the label is used.
+            The `insertText` is subject to interpretation by the client side.
+            Some tools might not take the string literally. For example VS Code when code complete is requested
+            in this example `con<cursor position>` and a completion item with an `insertText` of `console`
+            is provided it will only insert `sole`. Therefore it is recommended to use `textEdit`
+            instead since it avoids additional client side interpretation.
+            @deprecated Use textEdit instead.
+        :param InsertTextFormat isertTextFormat: The format of the insert text.
+            The format applies to both the `insertText` property and the `newText` property of a provided `textEdit`.
+        :param TextEdit textEdit: An edit which is applied to a document when selecting this completion.
+            When an edit is provided the value of `insertText` is ignored.
+            Note:* The range of the edit must be a single line range and it must contain the position at
+            which completion has been requested.
+        :param TextEdit additionalTextEdits: An optional array of additional text edits that are
+            applied when selecting this completion.
+            Edits must not overlap (including the same insert position) with the main edit nor with themselves.
+            Additional text edits should be used to change text unrelated to the current cursor position
+            (for example adding an import statement at the top of the file if the completion item will
+            insert an unqualified type).
+        :param str commitCharacters: An optional set of characters that when pressed while this completion
+            is active will accept it first and then type that character.
+            *Note* that all commit characters should have `length=1` and that superfluous characters will be ignored.
+        :param Command command: An optional command that is executed *after* inserting this completion.
+            Note: that additional modifications to the current document should be described with
+            the additionalTextEdits-property.
+        :param data: An data entry field that is preserved on a completion item between a completion
+            and a completion resolve request.
         """
         self.label = label
         self.kind = kind
@@ -416,34 +446,37 @@ class CompletionList(object):
     """
     Represents a collection of [completion items](#CompletionItem) to be presented in the editor.
     """
+
     def __init__(self, isIncomplete, items):
         """
         Constructs a new CompletionContext instance.
-        
+
         :param bool isIncomplete: This list it not complete. Further typing should result in recomputing this list.
         :param CompletionItem items: The completion items.
         """
         self.isIncomplete = isIncomplete
         self.items = [to_type(i, CompletionItem) for i in items]
 
-class ErrorCodes(object):
-	# Defined by JSON RPC
-	ParseError = -32700
-	InvalidRequest = -32600
-	MethodNotFound = -32601
-	InvalidParams = -32602
-	InternalError = -32603
-	serverErrorStart = -32099
-	serverErrorEnd = -32000
-	ServerNotInitialized = -32002
-	UnknownErrorCode = -32001
 
-	# Defined by the protocol.
-	RequestCancelled = -32800
-	ContentModified = -32801
+class ErrorCodes(object):
+    # Defined by JSON RPC
+    ParseError = -32700
+    InvalidRequest = -32600
+    MethodNotFound = -32601
+    InvalidParams = -32602
+    InternalError = -32603
+    serverErrorStart = -32099
+    serverErrorEnd = -32000
+    ServerNotInitialized = -32002
+    UnknownErrorCode = -32001
+
+    # Defined by the protocol.
+    RequestCancelled = -32800
+    ContentModified = -32801
+
 
 class ResponseError(Exception):
-    def __init__(self, code, message, data = None):
+    def __init__(self, code, message, data=None):
         self.code = code
         self.message = message
         if data:
